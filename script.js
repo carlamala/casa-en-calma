@@ -1,3 +1,19 @@
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import { getFirestore, doc, setDoc, onSnapshot, getDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyDlLbBgfhDPr3XLJaRvSVVXxKc9NBXA3Tk",
+  authDomain: "casa-en-calma.firebaseapp.com",
+  projectId: "casa-en-calma",
+  storageBucket: "casa-en-calma.firebasestorage.app",
+  messagingSenderId: "528896377818",
+  appId: "1:528896377818:web:85b258dc41aecadb1fb6e3",
+  measurementId: "G-3LH1BJ2D0X"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+
 const defaultTasks = [
   {
     id: 1,
@@ -81,14 +97,11 @@ const rewardIdeas = [
 ];
 
 const weekDays = ["Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado", "Domingo"];
+const HOME_ID = "carla-jordi-home";
 
 let tasks = [];
 let history = [];
 let availability = createDefaultAvailability();
-
-let isInitialLoadComplete = false;
-
-const HOME_ID = "carla-jordi-home";
 
 function createDefaultAvailability() {
   return weekDays.map(day => ({
@@ -99,15 +112,10 @@ function createDefaultAvailability() {
 }
 
 function getHomeRef() {
-  const { doc } = window.firebaseHelpers;
-  return doc(window.db, "homes", HOME_ID);
+  return doc(db, "homes", HOME_ID);
 }
 
 async function saveAll() {
-  if (!window.db || !window.firebaseHelpers) return;
-
-  const { setDoc } = window.firebaseHelpers;
-
   const now = new Date();
   const currentMonth = now.getMonth();
 
@@ -120,8 +128,6 @@ async function saveAll() {
 }
 
 async function initializeSharedData() {
-  const { getDoc, onSnapshot } = window.firebaseHelpers;
-
   const homeRef = getHomeRef();
   const snap = await getDoc(homeRef);
 
@@ -146,8 +152,6 @@ async function initializeSharedData() {
     renderTasks(getActiveFilter());
     renderCalendar();
     renderHistory();
-
-    isInitialLoadComplete = true;
   });
 }
 
@@ -621,9 +625,7 @@ renderCalendar();
 renderHistory();
 
 window.addEventListener("load", async () => {
-  if (window.db && window.firebaseHelpers) {
-    await initializeSharedData();
-  }
+  await initializeSharedData();
 });
 
 if ("serviceWorker" in navigator) {

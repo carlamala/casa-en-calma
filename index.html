@@ -12,214 +12,194 @@
 </head>
 
 <body>
-<div class="app">
-  <header class="topbar">
-    <div>
-      <p class="eyebrow">Casa en Calma</p>
-      <h1>Hola, Carla y Jordi</h1>
-      <p class="subtext" id="todayText">Hoy tenéis vuestra organización del hogar en orden.</p>
-    </div>
-    <div class="date-pill" id="currentDate">12 Mar</div>
-  </header>
-
-  <main class="screen active" id="screen-home">
-    <section class="ai-card">
-      <p class="ai-label">Asistente IA</p>
-      <h2>He organizado vuestra semana según disponibilidad, esfuerzo e historial.</h2>
-      <button class="primary-btn" id="aiOrganizeBtn">Organizar mi semana con IA</button>
-      <button class="text-btn" id="explainBtn">Ver explicación</button>
-      <div class="ai-explanation hidden" id="aiExplanation">
-        He priorizado tareas urgentes, repartido según preferencias y equilibrado la carga entre ambos.
+  <div class="app">
+    <header class="topbar">
+      <div>
+        <p class="eyebrow">Casa en Calma</p>
+        <h1>Hola, Carla y Jordi</h1>
+        <p class="subtext" id="todayText">Hoy tenéis vuestra organización del hogar en orden.</p>
       </div>
-    </section>
+      <div class="date-pill" id="currentDate">12 Mar</div>
+    </header>
 
-    <section class="summary-grid">
-      <section class="panel progress-home">
-  <div class="section-title">
-    <h2>Progreso del mes</h2>
-  </div>
+    <main class="screen active" id="screen-home">
+      <section class="ai-card">
+        <p class="ai-label">Asistente IA</p>
+        <h2>He organizado vuestra semana según disponibilidad, esfuerzo e historial.</h2>
+        <button class="primary-btn" id="aiOrganizeBtn">Organizar mi semana con IA</button>
+        <button class="text-btn" id="explainBtn">Ver explicación</button>
+        <div class="ai-explanation hidden" id="aiExplanation">
+          He priorizado tareas urgentes, repartido según preferencias y equilibrado la carga entre ambos.
+        </div>
+      </section>
 
-  <p id="homeProgressText">0 / 200 pts</p>
-
-  <div class="progress-bar">
-    <div class="progress-fill" id="homeProgressFill"></div>
-  </div>
-</section>
-      <div class="summary-card">
-        <p class="summary-name">Carla</p>
-        <h3 id="carlaHours">2h disponibles</h3>
-        <p id="carlaLoad">Carga estimada: 35 min</p>
-      </div>
-      <div class="summary-card">
-        <p class="summary-name">Jordi</p>
-        <h3 id="jordiHours">3h disponibles</h3>
-        <p id="jordiLoad">Carga estimada: 55 min</p>
-      </div>
-    </section>
-
-    <section class="task-section">
-      <div class="section-title">
-        <h2>Le toca a Carla</h2>
-      </div>
-      <div id="carlaTasks" class="task-list"></div>
-    </section>
-
-    <section class="task-section">
-      <div class="section-title">
-        <h2>Le toca a Jordi</h2>
-      </div>
-      <div id="jordiTasks" class="task-list"></div>
-    </section>
-
-    <section class="task-section">
-      <div class="section-title">
-        <h2>Tareas compartidas</h2>
-      </div>
-      <div id="sharedTasks" class="task-list"></div>
-    </section>
-  </main>
-
-  <main class="screen" id="screen-calendar">
-    <section class="panel">
-      <div class="section-title">
-        <h2>Disponibilidad semanal</h2>
-      </div>
-      <div id="calendarDays" class="calendar-days"></div>
-      <button class="primary-btn" id="saveAvailabilityBtn">Guardar disponibilidad</button>
-    </section>
-  </main>
-
-  <main class="screen" id="screen-tasks">
-    <section class="panel">
-      <div class="section-title">
-        <h2>Todas las tareas</h2>
-        <button class="small-btn" id="addTaskBtn">+ Añadir</button>
-      </div>
-
-      <div class="tabs">
-        <button class="tab active" data-filter="all">Todas</button>
-        <button class="tab" data-filter="daily">Diarias</button>
-        <button class="tab" data-filter="weekly">Semanales</button>
-        <button class="tab" data-filter="monthly">Mensuales</button>
-        <button class="tab" data-filter="oneoff">Puntuales</button>
-      </div>
-
-      <div id="allTasksList" class="task-list"></div>
-    </section>
-  </main>
-
-  <main class="screen" id="screen-history">
-    <section class="panel">
-      <div class="section-title">
-        <h2>Historial</h2>
-      </div>
-
-      <div class="summary-grid">
+      <section class="summary-grid">
         <div class="summary-card">
           <p class="summary-name">Carla</p>
-          <h3 id="carlaPoints">0 pts</h3>
-          <p id="carlaDone">0 tareas hechas</p>
+          <h3 id="carlaHours">2h disponibles</h3>
+          <p id="carlaLoad">Carga estimada: 35 min</p>
         </div>
         <div class="summary-card">
           <p class="summary-name">Jordi</p>
-          <h3 id="jordiPoints">0 pts</h3>
-          <p id="jordiDone">0 tareas hechas</p>
+          <h3 id="jordiHours">3h disponibles</h3>
+          <p id="jordiLoad">Carga estimada: 55 min</p>
         </div>
-      </div>
+      </section>
 
-      <div id="historyList" class="history-list"></div>
-    </section>
-  </main>
+      <section class="panel progress-home">
+        <div class="section-title">
+          <h2>Progreso del mes</h2>
+        </div>
 
-<main class="screen" id="screen-reward">
-  <section class="panel">
-    <div class="section-title">
-      <h2>Recompensa del mes</h2>
-    </div>
+        <p id="homeProgressText">0 / 20 pts</p>
 
-    <div class="reward-progress-card">
-      <p class="reward-label">Progreso mensual</p>
-      <h3 id="monthlyPointsText">0 / 200 pts</h3>
-      <p id="monthlyProgressMessage">Aún estáis empezando. Cada tarea hecha os acerca a vuestro plan del mes.</p>
+        <div class="progress-bar">
+          <div class="progress-fill" id="homeProgressFill"></div>
+        </div>
+      </section>
 
-      <div class="progress-bar">
-        <div class="progress-fill" id="monthlyProgressFill"></div>
-      </div>
-    </div>
+      <section class="task-section">
+        <div class="section-title">
+          <h2>Le toca a Carla</h2>
+        </div>
+        <div id="carlaTasks" class="task-list"></div>
+      </section>
 
-    <div class="reward-card">
-      <p class="reward-label">Plan sugerido</p>
-      <h3 id="rewardTitle">Todavía no habéis desbloqueado una recompensa</h3>
-      <p id="rewardText">Completad tareas y sumad puntos para conseguir una propuesta especial.</p>
-      <button class="primary-btn" id="generateRewardBtn">Generar idea</button>
-    </div>
-  </section>
-</main>
+      <section class="task-section">
+        <div class="section-title">
+          <h2>Le toca a Jordi</h2>
+        </div>
+        <div id="jordiTasks" class="task-list"></div>
+      </section>
 
-  <nav class="bottom-nav">
-    <button class="nav-btn active" data-screen="home">Inicio</button>
-    <button class="nav-btn" data-screen="calendar">Calendario</button>
-    <button class="nav-btn" data-screen="tasks">Tareas</button>
-    <button class="nav-btn" data-screen="history">Historial</button>
-    <button class="nav-btn" data-screen="reward">Recompensa</button>
-  </nav>
+      <section class="task-section">
+        <div class="section-title">
+          <h2>Tareas compartidas</h2>
+        </div>
+        <div id="sharedTasks" class="task-list"></div>
+      </section>
+    </main>
 
-  <div id="taskModal" class="modal-overlay" style="display: none;">
-    <div class="modal-content">
-      <h2>Nueva tarea</h2>
+    <main class="screen" id="screen-calendar">
+      <section class="panel">
+        <div class="section-title">
+          <h2>Disponibilidad semanal</h2>
+        </div>
 
-      <label for="taskTitle">Nombre de la tarea</label>
-      <input type="text" id="taskTitle" placeholder="Ej. Limpiar baño" />
+        <div id="calendarDays" class="calendar-days"></div>
 
-      <label for="taskCategory">Categoría</label>
-      <select id="taskCategory">
-        <option value="daily">Diaria</option>
-        <option value="weekly">Semanal</option>
-        <option value="monthly">Mensual</option>
-        <option value="oneoff">Puntual</option>
-      </select>
+        <button class="primary-btn" id="saveAvailabilityBtn">Guardar disponibilidad</button>
+      </section>
+    </main>
 
-      <label for="taskAssigned">Asignar a</label>
-      <select id="taskAssigned">
-        <option value="Carla">Carla</option>
-        <option value="Jordi">Jordi</option>
-        <option value="shared">Compartida</option>
-      </select>
+    <main class="screen" id="screen-tasks">
+      <section class="panel">
+        <div class="section-title">
+          <h2>Todas las tareas</h2>
+          <button class="small-btn" id="addTaskBtn">+ Añadir</button>
+        </div>
 
-      <label for="taskDuration">Duración (minutos)</label>
-      <input type="number" id="taskDuration" value="20" min="1" />
+        <div class="tabs">
+          <button class="tab active" data-filter="all">Todas</button>
+          <button class="tab" data-filter="daily">Diarias</button>
+          <button class="tab" data-filter="weekly">Semanales</button>
+          <button class="tab" data-filter="monthly">Mensuales</button>
+          <button class="tab" data-filter="oneoff">Puntuales</button>
+        </div>
 
-      <div class="modal-buttons">
-        <button class="primary-btn" id="saveTaskBtn" type="button">Guardar tarea</button>
-        <button class="text-btn" id="closeModalBtn" type="button">Cancelar</button>
+        <div id="allTasksList" class="task-list"></div>
+      </section>
+    </main>
+
+    <main class="screen" id="screen-history">
+      <section class="panel">
+        <div class="section-title">
+          <h2>Historial</h2>
+        </div>
+
+        <div class="summary-grid">
+          <div class="summary-card">
+            <p class="summary-name">Carla</p>
+            <h3 id="carlaPoints">0 pts</h3>
+            <p id="carlaDone">0 tareas hechas</p>
+          </div>
+          <div class="summary-card">
+            <p class="summary-name">Jordi</p>
+            <h3 id="jordiPoints">0 pts</h3>
+            <p id="jordiDone">0 tareas hechas</p>
+          </div>
+        </div>
+
+        <div id="historyList" class="history-list"></div>
+      </section>
+    </main>
+
+    <main class="screen" id="screen-reward">
+      <section class="panel">
+        <div class="section-title">
+          <h2>Recompensa del mes</h2>
+        </div>
+
+        <div class="reward-progress-card">
+          <p class="reward-label">Progreso mensual</p>
+          <h3 id="monthlyPointsText">0 / 20 pts</h3>
+          <p id="monthlyProgressMessage">Aún estáis empezando. Cada tarea hecha os acerca a vuestro plan del mes.</p>
+
+          <div class="progress-bar">
+            <div class="progress-fill" id="monthlyProgressFill"></div>
+          </div>
+        </div>
+
+        <div class="reward-card">
+          <p class="reward-label">Plan sugerido</p>
+          <h3 id="rewardTitle">Todavía no habéis desbloqueado una recompensa</h3>
+          <p id="rewardText">Completad tareas y sumad puntos para conseguir una propuesta especial.</p>
+          <button class="primary-btn" id="generateRewardBtn">Generar idea</button>
+        </div>
+      </section>
+    </main>
+
+    <nav class="bottom-nav">
+      <button class="nav-btn active" data-screen="home">Inicio</button>
+      <button class="nav-btn" data-screen="calendar">Calendario</button>
+      <button class="nav-btn" data-screen="tasks">Tareas</button>
+      <button class="nav-btn" data-screen="history">Historial</button>
+      <button class="nav-btn" data-screen="reward">Recompensa</button>
+    </nav>
+
+    <div id="taskModal" class="modal-overlay" style="display: none;">
+      <div class="modal-content">
+        <h2>Nueva tarea</h2>
+
+        <label for="taskTitle">Nombre de la tarea</label>
+        <input type="text" id="taskTitle" placeholder="Ej. Limpiar baño">
+
+        <label for="taskCategory">Categoría</label>
+        <select id="taskCategory">
+          <option value="daily">Diaria</option>
+          <option value="weekly">Semanal</option>
+          <option value="monthly">Mensual</option>
+          <option value="oneoff">Puntual</option>
+        </select>
+
+        <label for="taskAssigned">Asignar a</label>
+        <select id="taskAssigned">
+          <option value="Carla">Carla</option>
+          <option value="Jordi">Jordi</option>
+          <option value="shared">Compartida</option>
+        </select>
+
+        <label for="taskDuration">Duración (minutos)</label>
+        <input type="number" id="taskDuration" value="20" min="1">
+
+        <div class="modal-buttons">
+          <button class="primary-btn" id="saveTaskBtn" type="button">Guardar tarea</button>
+          <button class="text-btn" id="closeModalBtn" type="button">Cancelar</button>
+        </div>
       </div>
     </div>
   </div>
-</div>
-<script type="module">
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-  import { getFirestore, doc, setDoc, onSnapshot, getDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
-  const firebaseConfig = {
-    apiKey: "AIzaSyDlLbBgfhDPr3XLJaRvSVVXxKc9NBXA3Tk",
-    authDomain: "casa-en-calma.firebaseapp.com",
-    projectId: "casa-en-calma",
-    storageBucket: "casa-en-calma.firebasestorage.app",
-    messagingSenderId: "528896377818",
-    appId: "1:528896377818:web:85b258dc41aecadb1fb6e3",
-    measurementId: "G-3LH1BJ2D0X"
-  };
-
-  const app = initializeApp(firebaseConfig);
-  const db = getFirestore(app);
-
-  window.db = db;
-  window.firebaseHelpers = { doc, setDoc, onSnapshot, getDoc };
-</script>
-window.db = db;
-
-</script>
-<script type="module" src="script.js"></script>
-
+  <script type="module" src="script.js"></script>
 </body>
 </html>
