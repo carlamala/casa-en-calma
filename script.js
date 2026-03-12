@@ -82,31 +82,14 @@ const rewardIdeas = [
 
 const weekDays = ["Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado", "Domingo"];
 
-let tasks = JSON.parse(localStorage.getItem("casaEnCalmaTasks")) || defaultTasks;
-let history = JSON.parse(localStorage.getItem("casaEnCalmaHistory")) || [];
-let availability = JSON.parse(localStorage.getItem("casaEnCalmaAvailability")) || createDefaultAvailability();
-const now = new Date();
-const currentMonth = now.getMonth();
+let tasks = [];
+let history = [];
+let availability = createDefaultAvailability();
 
-const savedMonth = localStorage.getItem("casaEnCalmaMonth");
+let isInitialLoadComplete = false;
 
-if (savedMonth === null) {
-  localStorage.setItem("casaEnCalmaMonth", currentMonth);
-} else if (Number(savedMonth) !== currentMonth) {
-  tasks.forEach(task => {
-    if (task.status === "done") {
-      task.status = "pending";
-    }
-  });
+const HOME_ID = "carla-jordi-home";
 
-  history.unshift({
-    text: "Nuevo mes: se ha reiniciado el progreso mensual.",
-    timestamp: new Date().toLocaleString()
-  });
-
-  localStorage.setItem("casaEnCalmaMonth", currentMonth);
-  saveAll();
-}
 function createDefaultAvailability() {
   return weekDays.map(day => ({
     day,
@@ -115,10 +98,79 @@ function createDefaultAvailability() {
   }));
 }
 
-function saveAll() {
-  localStorage.setItem("casaEnCalmaTasks", JSON.stringify(tasks));
-  localStorage.setItem("casaEnCalmaHistory", JSON.stringify(history));
-  localStorage.setItem("casaEnCalmaAvailability", JSON.stringify(availability));
+function getHomeRef() {
+  const { doc } = window.firebaseHelpers;
+  return doc(window.db, "homes", HOME_ID);
+}
+
+async function saveAll() {
+  if (!window.db || !window.firebaseHelpers) return;
+
+  const { setDoc } = window.firebaseHelpers;
+
+  const now = new Date();
+  const currentMonth = now.getMonth();
+
+  await setDoc(getHomeRef(), {
+    tasks,
+    history,
+    availability,
+    month: currentMonth
+  });
+}
+
+async function initializeSharedData() {
+  const { getDoc, onSnapshot } = window.firebaseHelpers;
+
+  const homeRef = getHomeRef();
+  const snap = await getDoc(homeRef);
+
+  if (!snap.exists()) {
+    tasks = defaultTasks;
+    history = [];
+    availability = createDefaultAvailability();
+    await saveAll();
+  }
+
+  onSnapshot(homeRef, (docSnap) => {
+    if (!docSnap.exists()) return;
+
+    const data = docSnap.data();
+
+    tasks = data.tasks || defaultTasks;
+    history = data.history || [];
+    availability = data.availability || createDefaultAvailability();
+
+    handleMonthlyResetIfNeeded(data.month);
+
+    renderTasks(getActiveFilter());
+    renderCalendar();
+    renderHistory();
+
+    isInitialLoadComplete = true;
+  });
+}
+
+function handleMonthlyResetIfNeeded(savedMonth) {
+  const now = new Date();
+  const currentMonth = now.getMonth();
+
+  if (savedMonth === undefined || savedMonth === null) return;
+
+  if (Number(savedMonth) !== currentMonth) {
+    tasks.forEach(task => {
+      if (task.status === "done") {
+        task.status = "pending";
+      }
+    });
+
+    history.unshift({
+      text: "Nuevo mes: se ha reiniciado el progreso mensual.",
+      timestamp: new Date().toLocaleString()
+    });
+
+    saveAll();
+  }
 }
 
 function formatCategory(category) {
@@ -184,6 +236,8 @@ function renderTasks(filter = "all") {
   const sharedContainer = document.getElementById("sharedTasks");
   const allTasksList = document.getElementById("allTasksList");
 
+  if (!carlaContainer || !jordiContainer || !sharedContainer || !allTasksList) return;
+
   carlaContainer.innerHTML = "";
   jordiContainer.innerHTML = "";
   sharedContainer.innerHTML = "";
@@ -209,7 +263,7 @@ function renderTasks(filter = "all") {
   updateSummary();
 }
 
-function markTaskDone(id) {
+async function markTaskDone(id) {
   const task = tasks.find(t => t.id === id);
   if (!task) return;
 
@@ -220,12 +274,10 @@ function markTaskDone(id) {
     timestamp: new Date().toLocaleString()
   });
 
-  saveAll();
-  renderTasks(getActiveFilter());
-  renderHistory();
+  await saveAll();
 }
 
-function postponeTask(id) {
+async function postponeTask(id) {
   const task = tasks.find(t => t.id === id);
   if (!task) return;
 
@@ -236,13 +288,11 @@ function postponeTask(id) {
     timestamp: new Date().toLocaleString()
   });
 
-  saveAll();
-  renderTasks(getActiveFilter());
-  renderHistory();
+  await saveAll();
 }
 
 function updateMonthlyProgress() {
-  const monthlyGoal = 200;
+  const monthlyGoal = 20;
 
   const totalDonePoints = tasks
     .filter(task => task.status === "done")
@@ -254,30 +304,30 @@ function updateMonthlyProgress() {
   const progressFill = document.getElementById("monthlyProgressFill");
   const progressMessage = document.getElementById("monthlyProgressMessage");
 
-  if (!pointsText || !progressFill || !progressMessage) return;
+  if (pointsText && progressFill && progressMessage) {
+    pointsText.textContent = `${totalDonePoints} / ${monthlyGoal} pts`;
+    progressFill.style.width = `${progressPercent}%`;
 
-  pointsText.textContent = `${totalDonePoints} / ${monthlyGoal} pts`;
-  progressFill.style.width = `${progressPercent}%`;
-  
-  const homeText = document.getElementById("homeProgressText");
-const homeFill = document.getElementById("homeProgressFill");
+    let message = "Aún estáis empezando. Cada tarea hecha os acerca a vuestro plan del mes.";
 
-if (homeText && homeFill) {
-  homeText.textContent = `${totalDonePoints} / ${monthlyGoal} pts`;
-  homeFill.style.width = `${progressPercent}%`;
-}
+    if (totalDonePoints >= monthlyGoal) {
+      message = "Objetivo mensual conseguido. Ya podéis generar vuestra recompensa.";
+    } else if (totalDonePoints >= 15) {
+      message = "Ya casi lo tenéis. Estáis muy cerca de desbloquear vuestro plan del mes.";
+    } else if (totalDonePoints >= 8) {
+      message = "Vais muy bien. Ya se nota el progreso y la constancia.";
+    }
 
-  let message = "Aún estáis empezando. Cada tarea hecha os acerca a vuestro plan del mes.";
-
-  if (totalDonePoints >= monthlyGoal) {
-    message = "Objetivo mensual conseguido. Ya podéis generar vuestra recompensa.";
-  } else if (totalDonePoints >= 15) {
-    message = "Ya casi lo tenéis. Estáis muy cerca de desbloquear vuestro plan del mes.";
-  } else if (totalDonePoints >= 8) {
-    message = "Vais muy bien. Ya se nota el progreso y la constancia.";
+    progressMessage.textContent = message;
   }
 
-  progressMessage.textContent = message;
+  const homeText = document.getElementById("homeProgressText");
+  const homeFill = document.getElementById("homeProgressFill");
+
+  if (homeText && homeFill) {
+    homeText.textContent = `${totalDonePoints} / ${monthlyGoal} pts`;
+    homeFill.style.width = `${progressPercent}%`;
+  }
 }
 
 function updateSummary() {
@@ -289,8 +339,11 @@ function updateSummary() {
     .filter(t => t.assignedTo === "Jordi" && t.status !== "done")
     .reduce((acc, t) => acc + t.duration, 0);
 
-  document.getElementById("carlaLoad").textContent = `Carga estimada: ${carlaMinutes} min`;
-  document.getElementById("jordiLoad").textContent = `Carga estimada: ${jordiMinutes} min`;
+  const carlaLoad = document.getElementById("carlaLoad");
+  const jordiLoad = document.getElementById("jordiLoad");
+
+  if (carlaLoad) carlaLoad.textContent = `Carga estimada: ${carlaMinutes} min`;
+  if (jordiLoad) jordiLoad.textContent = `Carga estimada: ${jordiMinutes} min`;
 
   const carlaDoneTasks = tasks.filter(t => t.assignedTo === "Carla" && t.status === "done");
   const jordiDoneTasks = tasks.filter(t => t.assignedTo === "Jordi" && t.status === "done");
@@ -298,40 +351,54 @@ function updateSummary() {
   const carlaPoints = carlaDoneTasks.reduce((acc, t) => acc + t.points, 0);
   const jordiPoints = jordiDoneTasks.reduce((acc, t) => acc + t.points, 0);
 
-  document.getElementById("carlaPoints").textContent = `${carlaPoints} pts`;
-  document.getElementById("jordiPoints").textContent = `${jordiPoints} pts`;
-  document.getElementById("carlaDone").textContent = `${carlaDoneTasks.length} tareas hechas`;
-  document.getElementById("jordiDone").textContent = `${jordiDoneTasks.length} tareas hechas`;
+  const carlaPointsEl = document.getElementById("carlaPoints");
+  const jordiPointsEl = document.getElementById("jordiPoints");
+  const carlaDoneEl = document.getElementById("carlaDone");
+  const jordiDoneEl = document.getElementById("jordiDone");
+
+  if (carlaPointsEl) carlaPointsEl.textContent = `${carlaPoints} pts`;
+  if (jordiPointsEl) jordiPointsEl.textContent = `${jordiPoints} pts`;
+  if (carlaDoneEl) carlaDoneEl.textContent = `${carlaDoneTasks.length} tareas hechas`;
+  if (jordiDoneEl) jordiDoneEl.textContent = `${jordiDoneTasks.length} tareas hechas`;
 
   const totalCarla = availability.reduce((acc, day) => acc + Number(day.carla), 0);
   const totalJordi = availability.reduce((acc, day) => acc + Number(day.jordi), 0);
 
-  document.getElementById("carlaHours").textContent = `${totalCarla}h disponibles`;
-  document.getElementById("jordiHours").textContent = `${totalJordi}h disponibles`;
+  const carlaHours = document.getElementById("carlaHours");
+  const jordiHours = document.getElementById("jordiHours");
+
+  if (carlaHours) carlaHours.textContent = `${totalCarla}h disponibles`;
+  if (jordiHours) jordiHours.textContent = `${totalJordi}h disponibles`;
 
   const today = new Date();
-  document.getElementById("currentDate").textContent = today.toLocaleDateString("es-ES", {
-    day: "numeric",
-    month: "short"
-  });
-const pendingToday = tasks.filter(t => t.status === "pending").length;
-
-const todayText = document.getElementById("todayText");
-
-if (todayText) {
-  if (pendingToday === 0) {
-    todayText.textContent = "Hoy no quedan tareas pendientes.";
-  } else if (pendingToday === 1) {
-    todayText.textContent = "Hoy queda 1 tarea pendiente.";
-  } else {
-    todayText.textContent = `Hoy tenéis ${pendingToday} tareas pendientes.`;
+  const currentDate = document.getElementById("currentDate");
+  if (currentDate) {
+    currentDate.textContent = today.toLocaleDateString("es-ES", {
+      day: "numeric",
+      month: "short"
+    });
   }
-}
+
+  const pendingToday = tasks.filter(t => t.status === "pending").length;
+  const todayText = document.getElementById("todayText");
+
+  if (todayText) {
+    if (pendingToday === 0) {
+      todayText.textContent = "Hoy no quedan tareas pendientes.";
+    } else if (pendingToday === 1) {
+      todayText.textContent = "Hoy queda 1 tarea pendiente.";
+    } else {
+      todayText.textContent = `Hoy tenéis ${pendingToday} tareas pendientes.`;
+    }
+  }
+
   updateMonthlyProgress();
 }
 
 function renderCalendar() {
   const container = document.getElementById("calendarDays");
+  if (!container) return;
+
   container.innerHTML = "";
 
   availability.forEach((item, index) => {
@@ -364,6 +431,8 @@ function renderCalendar() {
 
 function renderHistory() {
   const historyList = document.getElementById("historyList");
+  if (!historyList) return;
+
   historyList.innerHTML = "";
 
   if (history.length === 0) {
@@ -379,7 +448,7 @@ function renderHistory() {
   });
 }
 
-function organizeWithIA() {
+async function organizeWithIA() {
   const totalCarlaMinutes = availability.reduce((acc, day) => acc + Number(day.carla), 0) * 60;
   const totalJordiMinutes = availability.reduce((acc, day) => acc + Number(day.jordi), 0) * 60;
 
@@ -426,13 +495,11 @@ function organizeWithIA() {
     timestamp: new Date().toLocaleString()
   });
 
-  saveAll();
-  renderTasks(getActiveFilter());
-  renderHistory();
+  await saveAll();
 }
 
 function generateReward() {
-  const monthlyGoal = 200;
+  const monthlyGoal = 20;
 
   const totalDonePoints = tasks
     .filter(task => task.status === "done")
@@ -485,15 +552,15 @@ function getActiveFilter() {
 
 function openModal() {
   const modal = document.getElementById("taskModal");
-  modal.style.display = "flex";
+  if (modal) modal.style.display = "flex";
 }
 
 function closeModal() {
   const modal = document.getElementById("taskModal");
-  modal.style.display = "none";
+  if (modal) modal.style.display = "none";
 }
 
-function saveTaskFromModal() {
+async function saveTaskFromModal() {
   const title = document.getElementById("taskTitle").value.trim();
   const category = document.getElementById("taskCategory").value;
   const assignedTo = document.getElementById("taskAssigned").value;
@@ -517,8 +584,12 @@ function saveTaskFromModal() {
 
   tasks.unshift(newTask);
 
-  saveAll();
-  renderTasks(getActiveFilter());
+  history.unshift({
+    text: `Se añadió la tarea "${title}"`,
+    timestamp: new Date().toLocaleString()
+  });
+
+  await saveAll();
   closeModal();
 
   document.getElementById("taskTitle").value = "";
@@ -533,13 +604,12 @@ document.getElementById("explainBtn").addEventListener("click", () => {
 
 document.getElementById("aiOrganizeBtn").addEventListener("click", organizeWithIA);
 
-document.getElementById("saveAvailabilityBtn").addEventListener("click", () => {
-  saveAll();
+document.getElementById("saveAvailabilityBtn").addEventListener("click", async () => {
+  await saveAll();
   updateSummary();
 });
 
 document.getElementById("generateRewardBtn").addEventListener("click", generateReward);
-
 document.getElementById("addTaskBtn").addEventListener("click", openModal);
 document.getElementById("closeModalBtn").addEventListener("click", closeModal);
 document.getElementById("saveTaskBtn").addEventListener("click", saveTaskFromModal);
@@ -549,6 +619,13 @@ setupTabs();
 renderTasks();
 renderCalendar();
 renderHistory();
+
+window.addEventListener("load", async () => {
+  if (window.db && window.firebaseHelpers) {
+    await initializeSharedData();
+  }
+});
+
 if ("serviceWorker" in navigator) {
   window.addEventListener("load", () => {
     navigator.serviceWorker.register("./service-worker.js")
