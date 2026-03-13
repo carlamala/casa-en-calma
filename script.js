@@ -350,6 +350,11 @@ async function postponeTask(id) {
     text: `"${task.title}" fue aplazada`,
     timestamp: new Date().toLocaleString()
   });
+
+  await saveAll();
+  showToast(`Tarea aplazada: ${task.title}`);
+}
+
 async function deleteTask(id) {
   const confirmDelete = confirm("¿Seguro que quieres eliminar esta tarea?");
   if (!confirmDelete) return;
@@ -366,11 +371,6 @@ async function deleteTask(id) {
   await saveAll();
   showToast("Tarea eliminada");
 }
-
-  await saveAll();
-  showToast(`Tarea aplazada: ${task.title}`);
-}
-
 function updateMonthlyProgress() {
   const monthlyGoal = 20;
 
