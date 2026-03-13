@@ -184,6 +184,7 @@ function setupUserSelection() {
       setupUserSelection();
     });
 }
+}
 
 function createDefaultAvailability() {
   return weekDays.map(day => ({
