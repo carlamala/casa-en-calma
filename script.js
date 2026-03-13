@@ -443,7 +443,13 @@ const todayStatsText = document.getElementById("todayStatsText");
 if (welcomeTitle) {
   welcomeTitle.textContent = `Hola, ${currentUser}`;
 }
+const myTasks = tasks.filter(
+  t => (t.assignedTo === currentUser || t.assignedTo === "shared") && t.status === "pending"
+);
 
+const myPendingCount = myTasks.length;
+
+const myPendingMinutes = myTasks.reduce((acc, t) => acc + t.duration, 0);
 if (todayStatsText) {
   if (myPendingCount === 0) {
     todayStatsText.textContent = "Hoy no tienes tareas pendientes";
