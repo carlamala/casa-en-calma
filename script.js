@@ -430,6 +430,29 @@ function updateSummary() {
 
   const pendingToday = tasks.filter(t => t.status === "pending").length;
   const todayText = document.getElementById("todayText");
+const myPendingTasks = tasks.filter(
+  t => (t.assignedTo === currentUser || t.assignedTo === "shared") && t.status === "pending"
+);
+
+const myPendingCount = myPendingTasks.length;
+const myPendingMinutes = myPendingTasks.reduce((acc, t) => acc + t.duration, 0);
+
+const welcomeTitle = document.getElementById("welcomeTitle");
+const todayStatsText = document.getElementById("todayStatsText");
+
+if (welcomeTitle) {
+  welcomeTitle.textContent = `Hola, ${currentUser}`;
+}
+
+if (todayStatsText) {
+  if (myPendingCount === 0) {
+    todayStatsText.textContent = "Hoy no tienes tareas pendientes";
+  } else if (myPendingCount === 1) {
+    todayStatsText.textContent = `Hoy tienes 1 tarea · ${myPendingMinutes} min estimados`;
+  } else {
+    todayStatsText.textContent = `Hoy tienes ${myPendingCount} tareas · ${myPendingMinutes} min estimados`;
+  }
+}
 
   if (todayText) {
     if (pendingToday === 0) {
