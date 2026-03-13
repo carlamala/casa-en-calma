@@ -263,19 +263,27 @@ function createTaskCard(task) {
       <span class="badge pending">${task.assignedTo === "shared" ? "Compartida" : task.assignedTo}</span>
     </div>
     <div class="task-actions">
-  <button class="done-btn" data-id="${task.id}">Hecha</button>
-  <button class="postpone-btn" data-id="${task.id}">Aplazar</button>
-  <button class="delete-btn" data-id="${task.id}">Eliminar</button>
-</div>
+      <button class="done-btn" data-id="${task.id}">Hecha</button>
+      <button class="postpone-btn" data-id="${task.id}">Aplazar</button>
+      <button class="delete-btn" data-id="${task.id}">Eliminar</button>
+    </div>
   `;
 
   const doneBtn = card.querySelector(".done-btn");
   const postponeBtn = card.querySelector(".postpone-btn");
-const deleteBtn = card.querySelector(".delete-btn");
+  const deleteBtn = card.querySelector(".delete-btn");
 
-  doneBtn.addEventListener("click", () => markTaskDone(task.id));
-  postponeBtn.addEventListener("click", () => postponeTask(task.id));
-deleteBtn.addEventListener("click", () => deleteTask(task.id));
+  if (doneBtn) {
+    doneBtn.addEventListener("click", () => markTaskDone(task.id));
+  }
+
+  if (postponeBtn) {
+    postponeBtn.addEventListener("click", () => postponeTask(task.id));
+  }
+
+  if (deleteBtn) {
+    deleteBtn.addEventListener("click", () => deleteTask(task.id));
+  }
 
   return card;
 }
