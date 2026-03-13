@@ -97,17 +97,29 @@ const rewardIdeas = [
 ];
 
 const weekDays = ["Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado", "Domingo"];
-let currentUser = localStorage.getItem("casaEnCalmaUser");
 const HOME_ID = "carla-jordi-home";
 
-
+let currentUser = localStorage.getItem("casaEnCalmaUser");
 let tasks = [];
 let history = [];
 let availability = createDefaultAvailability();
+
+function showToast(message) {
+  const toast = document.getElementById("toast");
+  if (!toast) return;
+
+  toast.textContent = message;
+  toast.classList.remove("hidden");
+
+  clearTimeout(window.toastTimeout);
+
+  window.toastTimeout = setTimeout(() => {
+    toast.classList.add("hidden");
+  }, 2500);
+}
+
 function setupUserSelection() {
-
   const selector = document.getElementById("userSelector");
-
   if (!selector) return;
 
   if (!currentUser) {
@@ -132,21 +144,8 @@ function setupUserSelection() {
       location.reload();
     });
   }
-
 }
-function showToast(message) {
-  const toast = document.getElementById("toast");
-  if (!toast) return;
 
-  toast.textContent = message;
-  toast.classList.remove("hidden");
-
-  clearTimeout(window.toastTimeout);
-
-  window.toastTimeout = setTimeout(() => {
-    toast.classList.add("hidden");
-  }, 2500);
-}
 function createDefaultAvailability() {
   return weekDays.map(day => ({
     day,
@@ -292,36 +291,34 @@ function renderTasks(filter = "all") {
   allTasksList.innerHTML = "";
 
   tasks.forEach(task => {
-  const homeCard = createTaskCard(task);
-  const listCard = createTaskCard(task);
+    const homeCard = createTaskCard(task);
+    const listCard = createTaskCard(task);
 
-  // INICIO: vista personalizada
-  if (task.assignedTo === currentUser) {
-    carlaContainer.appendChild(homeCard);
-  } else if (task.assignedTo === "shared") {
-    sharedContainer.appendChild(homeCard);
-  } else {
-    jordiContainer.appendChild(homeCard);
+    if (task.assignedTo === currentUser) {
+      carlaContainer.appendChild(homeCard);
+    } else if (task.assignedTo === "shared") {
+      sharedContainer.appendChild(homeCard);
+    } else {
+      jordiContainer.appendChild(homeCard);
+    }
+
+    if (filter === "all" || task.category === filter) {
+      allTasksList.appendChild(listCard);
+    }
+  });
+
+  const userTasksTitle = document.getElementById("userTasksTitle");
+  const otherTasksTitle = document.getElementById("otherTasksTitle");
+
+  if (userTasksTitle) {
+    userTasksTitle.textContent = "Tus tareas";
   }
 
-  // PÁGINA TAREAS: lista completa
-  if (filter === "all" || task.category === filter) {
-    allTasksList.appendChild(listCard);
+  if (otherTasksTitle) {
+    const otherUser = currentUser === "Carla" ? "Jordi" : "Carla";
+    otherTasksTitle.textContent = `Tareas de ${otherUser}`;
   }
-});
-const userTasksTitle = document.getElementById("userTasksTitle");
-const otherTasksTitle = document.getElementById("otherTasksTitle");
 
-if (userTasksTitle) {
-  userTasksTitle.textContent = "Tus tareas";
-}
-
-if (otherTasksTitle) {
-  const otherUser = currentUser === "Carla" ? "Jordi" : "Carla";
-  otherTasksTitle.textContent = `Tareas de ${otherUser}`;
-}
-
-updateSummary();
   updateSummary();
 }
 
@@ -337,7 +334,7 @@ async function markTaskDone(id) {
   });
 
   await saveAll();
-showToast(`Tarea completada: ${task.title}`);
+  showToast(`Tarea completada: ${task.title}`);
 }
 
 async function postponeTask(id) {
@@ -352,7 +349,7 @@ async function postponeTask(id) {
   });
 
   await saveAll();
-showToast(`Tarea aplazada: ${task.title}`);
+  showToast(`Tarea aplazada: ${task.title}`);
 }
 
 function updateMonthlyProgress() {
@@ -443,46 +440,32 @@ function updateSummary() {
     });
   }
 
-  const pendingToday = tasks.filter(t => t.status === "pending").length;
+  const welcomeTitle = document.getElementById("welcomeTitle");
+  const todayStatsText = document.getElementById("todayStatsText");
   const todayText = document.getElementById("todayText");
-const myPendingTasks = tasks.filter(
-  t => (t.assignedTo === currentUser || t.assignedTo === "shared") && t.status === "pending"
-);
 
-const myPendingCount = myPendingTasks.length;
-const myPendingMinutes = myPendingTasks.reduce((acc, t) => acc + t.duration, 0);
+  const myTasks = tasks.filter(
+    t => (t.assignedTo === currentUser || t.assignedTo === "shared") && t.status === "pending"
+  );
+  const myPendingCount = myTasks.length;
+  const myPendingMinutes = myTasks.reduce((acc, t) => acc + t.duration, 0);
 
-const welcomeTitle = document.getElementById("welcomeTitle");
-const todayStatsText = document.getElementById("todayStatsText");
-
-if (welcomeTitle) {
-  welcomeTitle.textContent = `Hola, ${currentUser}`;
-}
-const myTasks = tasks.filter(
-  t => (t.assignedTo === currentUser || t.assignedTo === "shared") && t.status === "pending"
-);
-
-const myPendingCount = myTasks.length;
-
-const myPendingMinutes = myTasks.reduce((acc, t) => acc + t.duration, 0);
-if (todayStatsText) {
-  if (myPendingCount === 0) {
-    todayStatsText.textContent = "Hoy no tienes tareas pendientes";
-  } else if (myPendingCount === 1) {
-    todayStatsText.textContent = `Hoy tienes 1 tarea · ${myPendingMinutes} min estimados`;
-  } else {
-    todayStatsText.textContent = `Hoy tienes ${myPendingCount} tareas · ${myPendingMinutes} min estimados`;
+  if (welcomeTitle) {
+    welcomeTitle.textContent = `Hola, ${currentUser}`;
   }
-}
+
+  if (todayStatsText) {
+    if (myPendingCount === 0) {
+      todayStatsText.textContent = "Hoy no tienes tareas pendientes";
+    } else if (myPendingCount === 1) {
+      todayStatsText.textContent = `Hoy tienes 1 tarea · ${myPendingMinutes} min estimados`;
+    } else {
+      todayStatsText.textContent = `Hoy tienes ${myPendingCount} tareas · ${myPendingMinutes} min estimados`;
+    }
+  }
 
   if (todayText) {
-    if (pendingToday === 0) {
-      todayText.textContent = "Hoy no quedan tareas pendientes.";
-    } else if (pendingToday === 1) {
-      todayText.textContent = "Hoy queda 1 tarea pendiente.";
-    } else {
-      todayText.textContent = `Hoy tenéis ${pendingToday} tareas pendientes.`;
-    }
+    todayText.textContent = "";
   }
 
   updateMonthlyProgress();
@@ -589,7 +572,41 @@ async function organizeWithIA() {
   });
 
   await saveAll();
-showToast("La IA ha reorganizado la semana");
+  showToast("La IA ha reorganizado la semana");
+}
+
+function getWeekNumber(date) {
+  const firstDay = new Date(date.getFullYear(), 0, 1);
+  const pastDays = (date - firstDay) / 86400000;
+  return Math.ceil((pastDays + firstDay.getDay() + 1) / 7);
+}
+
+async function checkWeeklyAIReset() {
+  const now = new Date();
+  const currentWeek = getWeekNumber(now);
+
+  const homeRef = getHomeRef();
+  const snap = await getDoc(homeRef);
+
+  if (!snap.exists()) return;
+
+  const data = snap.data();
+  const lastResetWeek = data.lastWeeklyReset;
+
+  if (lastResetWeek !== currentWeek) {
+    await organizeWithIA();
+
+    await setDoc(homeRef, {
+      lastWeeklyReset: currentWeek
+    }, { merge: true });
+
+    history.unshift({
+      text: "La IA reorganizó automáticamente la nueva semana.",
+      timestamp: new Date().toLocaleString()
+    });
+
+    await saveAll();
+  }
 }
 
 function generateReward() {
@@ -684,8 +701,8 @@ async function saveTaskFromModal() {
   });
 
   await saveAll();
-showToast(`Nueva tarea añadida: ${title}`);
-closeModal();
+  showToast(`Nueva tarea añadida: ${title}`);
+  closeModal();
 
   document.getElementById("taskTitle").value = "";
   document.getElementById("taskCategory").value = "daily";
@@ -716,13 +733,10 @@ renderCalendar();
 renderHistory();
 
 window.addEventListener("load", async () => {
-
   setupUserSelection();
-
   currentUser = localStorage.getItem("casaEnCalmaUser");
-
   await initializeSharedData();
-
+  await checkWeeklyAIReset();
 });
 
 if ("serviceWorker" in navigator) {
