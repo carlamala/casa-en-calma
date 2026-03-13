@@ -102,6 +102,8 @@ const HOME_ID = "carla-jordi-home";
 let currentUser = localStorage.getItem("casaEnCalmaUser");
 let tasks = [];
 let history = [];
+let pendingDeleteTaskId = null;
+let pendingDeleteTaskTitle = "";
 let availability = createDefaultAvailability();
 
 function showToast(message) {
@@ -363,18 +365,44 @@ async function postponeTask(id) {
   showToast(`Tarea aplazada: ${task.title}`);
 }
 
-async function deleteTask(id) {
-  const confirmDelete = confirm("¿Seguro que quieres eliminar esta tarea?");
-  if (!confirmDelete) return;
-
+function deleteTask(id) {
   const taskToDelete = tasks.find(task => task.id === id);
+  if (!taskToDelete) return;
 
-  tasks = tasks.filter(task => task.id !== id);
+  pendingDeleteTaskId = id;
+  pendingDeleteTaskTitle = taskToDelete.title;
+
+  const deleteModal = document.getElementById("deleteModal");
+  const deleteModalText = document.getElementById("deleteModalText");
+
+  deleteModalText.textContent =
+    `¿Seguro que quieres eliminar la tarea "${taskToDelete.title}"?`;
+
+  deleteModal.style.display = "flex";
+}
+function closeDeleteModal() {
+  const deleteModal = document.getElementById("deleteModal");
+  deleteModal.style.display = "none";
+
+  pendingDeleteTaskId = null;
+  pendingDeleteTaskTitle = "";
+}
+
+async function confirmDeleteTask() {
+  if (!pendingDeleteTaskId) return;
+
+  tasks = tasks.filter(task => task.id !== pendingDeleteTaskId);
 
   history.unshift({
-    text: `Se eliminó la tarea "${taskToDelete?.title || "sin nombre"}"`,
+    text: `Se eliminó la tarea "${pendingDeleteTaskTitle}"`,
     timestamp: new Date().toLocaleString()
   });
+
+  await saveAll();
+  showToast("Tarea eliminada");
+
+  closeDeleteModal();
+}
 
   await saveAll();
   showToast("Tarea eliminada");
@@ -752,6 +780,8 @@ document.getElementById("generateRewardBtn").addEventListener("click", generateR
 document.getElementById("addTaskBtn").addEventListener("click", openModal);
 document.getElementById("closeModalBtn").addEventListener("click", closeModal);
 document.getElementById("saveTaskBtn").addEventListener("click", saveTaskFromModal);
+document.getElementById("confirmDeleteBtn").addEventListener("click", confirmDeleteTask);
+document.getElementById("cancelDeleteBtn").addEventListener("click", closeDeleteModal);
 
 setupNavigation();
 setupTabs();
