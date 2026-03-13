@@ -383,10 +383,12 @@ function deleteTask(id) {
     deleteModal.style.display = "flex";
   }
 }
-}
+
 function closeDeleteModal() {
   const deleteModal = document.getElementById("deleteModal");
-  deleteModal.style.display = "none";
+  if (deleteModal) {
+    deleteModal.style.display = "none";
+  }
 
   pendingDeleteTaskId = null;
   pendingDeleteTaskTitle = "";
@@ -404,12 +406,7 @@ async function confirmDeleteTask() {
 
   await saveAll();
   showToast("Tarea eliminada");
-
   closeDeleteModal();
-}
-
-  await saveAll();
-  showToast("Tarea eliminada");
 }
 function updateMonthlyProgress() {
   const monthlyGoal = 200;
