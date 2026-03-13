@@ -102,9 +102,10 @@ const HOME_ID = "carla-jordi-home";
 let currentUser = localStorage.getItem("casaEnCalmaUser");
 let tasks = [];
 let history = [];
+let availability = createDefaultAvailability();
+
 let pendingDeleteTaskId = null;
 let pendingDeleteTaskTitle = "";
-let availability = createDefaultAvailability();
 
 function showToast(message) {
   const toast = document.getElementById("toast");
@@ -160,7 +161,7 @@ function getHomeRef() {
   return doc(db, "homes", HOME_ID);
 }
 
-async function saveAll() {
+async function saveAll(extraData = {}) {
   const now = new Date();
   const currentMonth = now.getMonth();
 
@@ -168,8 +169,9 @@ async function saveAll() {
     tasks,
     history,
     availability,
-    month: currentMonth
-  });
+    month: currentMonth,
+    ...extraData
+  }, { merge: true });
 }
 
 async function initializeSharedData() {
@@ -180,7 +182,7 @@ async function initializeSharedData() {
     tasks = defaultTasks;
     history = [];
     availability = createDefaultAvailability();
-    await saveAll();
+    await saveAll({ lastWeeklyReset: getWeekNumber(new Date()) });
   }
 
   onSnapshot(homeRef, (docSnap) => {
@@ -408,8 +410,9 @@ async function confirmDeleteTask() {
   showToast("Tarea eliminada");
   closeDeleteModal();
 }
+
 function updateMonthlyProgress() {
-  const monthlyGoal = 200;
+  const monthlyGoal = 20;
 
   const totalDonePoints = tasks
     .filter(task => task.status === "done")
@@ -652,9 +655,9 @@ async function checkWeeklyAIReset() {
   if (lastResetWeek !== currentWeek) {
     await organizeWithIA();
 
-    await setDoc(homeRef, {
+    await saveAll({
       lastWeeklyReset: currentWeek
-    }, { merge: true });
+    });
 
     history.unshift({
       text: "La IA reorganizó automáticamente la nueva semana.",
@@ -666,7 +669,7 @@ async function checkWeeklyAIReset() {
 }
 
 function generateReward() {
-  const monthlyGoal = 200;
+  const monthlyGoal = 20;
 
   const totalDonePoints = tasks
     .filter(task => task.status === "done")
@@ -674,7 +677,7 @@ function generateReward() {
 
   if (totalDonePoints < monthlyGoal) {
     document.getElementById("rewardTitle").textContent = "Todavía no habéis desbloqueado la recompensa";
-    document.getElementById("rewardText").textContent = "Necesitáis llegar a 200 puntos para generar vuestro plan especial del mes.";
+    document.getElementById("rewardText").textContent = "Necesitáis llegar a 20 puntos para generar vuestro plan especial del mes.";
     return;
   }
 
@@ -746,7 +749,7 @@ async function saveTaskFromModal() {
     duration: duration > 0 ? duration : 20,
     priority: "media",
     status: "pending",
-    points: 5
+    points: Math.max(5, Math.round((duration > 0 ? duration : 20) / 5))
   };
 
   tasks.unshift(newTask);
@@ -763,7 +766,7 @@ async function saveTaskFromModal() {
   document.getElementById("taskTitle").value = "";
   document.getElementById("taskCategory").value = "daily";
   document.getElementById("taskAssigned").value = "Carla";
-  document.getElementById("taskDuration").value = 200;
+  document.getElementById("taskDuration").value = 20;
 }
 
 document.getElementById("explainBtn").addEventListener("click", () => {
