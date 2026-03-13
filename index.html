@@ -12,15 +12,21 @@
 </head>
 
 <body>
-  <div id="userSelector" class="user-selector">
-    <div class="user-card">
-      <h2>¿Quién usa este móvil?</h2>
-      <p>Selecciona tu perfil</p>
+ <div id="userSelector" class="user-selector">
+  <div class="user-card">
+    <h2 id="userSelectorTitle">¿Quién usa este móvil?</h2>
+    <p id="userSelectorText">Selecciona tu perfil</p>
 
-      <button id="selectCarla" class="primary-btn">Soy Carla</button>
-      <button id="selectJordi" class="primary-btn">Soy Jordi</button>
+    <button id="selectCarla" class="primary-btn">Soy Carla</button>
+    <button id="selectJordi" class="primary-btn">Soy Jordi</button>
+
+    <div style="margin-top: 18px;">
+      <p id="languageLabel">Idioma</p>
+      <button id="selectCatalan" class="text-btn">Català</button>
+      <button id="selectSpanish" class="text-btn">Español</button>
     </div>
   </div>
+</div>
 
   <div class="app">
     <div id="toast" class="toast hidden"></div>
