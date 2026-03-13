@@ -279,22 +279,34 @@ function renderTasks(filter = "all") {
   allTasksList.innerHTML = "";
 
   tasks.forEach(task => {
-    const homeCard = createTaskCard(task);
-    const listCard = createTaskCard(task);
+  const homeCard = createTaskCard(task);
+  const listCard = createTaskCard(task);
 
-    if (task.assignedTo === "Carla") {
-      carlaContainer.appendChild(homeCard);
-    } else if (task.assignedTo === "Jordi") {
-      jordiContainer.appendChild(homeCard);
-    } else {
-      sharedContainer.appendChild(homeCard);
-    }
+  // INICIO: vista personalizada
+  if (task.assignedTo === currentUser) {
+    carlaContainer.appendChild(homeCard);
+  } else if (task.assignedTo === "shared") {
+    sharedContainer.appendChild(homeCard);
+  } else {
+    jordiContainer.appendChild(homeCard);
+  }
 
-    if (filter === "all" || task.category === filter) {
-      allTasksList.appendChild(listCard);
-    }
-  });
+  // PÁGINA TAREAS: lista completa
+  if (filter === "all" || task.category === filter) {
+    allTasksList.appendChild(listCard);
+  }
+});
+const userTasksTitle = document.getElementById("userTasksTitle");
 
+if (userTasksTitle) {
+  userTasksTitle.textContent = `Tareas para ${currentUser}`;
+}
+
+const otherSectionTitle = document.querySelector("#jordiTasks")?.previousElementSibling?.querySelector("h2");
+
+if (otherSectionTitle) {
+  otherSectionTitle.textContent = "Tareas de la otra persona";
+}
   updateSummary();
 }
 
