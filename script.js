@@ -299,14 +299,18 @@ function renderTasks(filter = "all") {
 const userTasksTitle = document.getElementById("userTasksTitle");
 
 if (userTasksTitle) {
-  userTasksTitle.textContent = `Tareas para ${currentUser}`;
+  userTasksTitle.textContent = "Tus tareas";
 }
 
-const otherSectionTitle = document.querySelector("#jordiTasks")?.previousElementSibling?.querySelector("h2");
+const otherSectionTitle =
+  document.querySelector("#jordiTasks")?.previousElementSibling?.querySelector("h2");
 
 if (otherSectionTitle) {
-  otherSectionTitle.textContent = "Tareas de la otra persona";
+  const otherUser = currentUser === "Carla" ? "Jordi" : "Carla";
+  otherSectionTitle.textContent = `Tareas de ${otherUser}`;
 }
+
+updateSummary();
   updateSummary();
 }
 
