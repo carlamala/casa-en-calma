@@ -375,10 +375,14 @@ function deleteTask(id) {
   const deleteModal = document.getElementById("deleteModal");
   const deleteModalText = document.getElementById("deleteModalText");
 
-  deleteModalText.textContent =
-    `¿Seguro que quieres eliminar la tarea "${taskToDelete.title}"?`;
+  if (deleteModalText) {
+    deleteModalText.textContent = `¿Seguro que quieres eliminar la tarea "${taskToDelete.title}"?`;
+  }
 
-  deleteModal.style.display = "flex";
+  if (deleteModal) {
+    deleteModal.style.display = "flex";
+  }
+}
 }
 function closeDeleteModal() {
   const deleteModal = document.getElementById("deleteModal");
@@ -408,7 +412,7 @@ async function confirmDeleteTask() {
   showToast("Tarea eliminada");
 }
 function updateMonthlyProgress() {
-  const monthlyGoal = 20;
+  const monthlyGoal = 200;
 
   const totalDonePoints = tasks
     .filter(task => task.status === "done")
@@ -665,7 +669,7 @@ async function checkWeeklyAIReset() {
 }
 
 function generateReward() {
-  const monthlyGoal = 20;
+  const monthlyGoal = 200;
 
   const totalDonePoints = tasks
     .filter(task => task.status === "done")
@@ -673,7 +677,7 @@ function generateReward() {
 
   if (totalDonePoints < monthlyGoal) {
     document.getElementById("rewardTitle").textContent = "Todavía no habéis desbloqueado la recompensa";
-    document.getElementById("rewardText").textContent = "Necesitáis llegar a 20 puntos para generar vuestro plan especial del mes.";
+    document.getElementById("rewardText").textContent = "Necesitáis llegar a 200 puntos para generar vuestro plan especial del mes.";
     return;
   }
 
@@ -762,7 +766,7 @@ async function saveTaskFromModal() {
   document.getElementById("taskTitle").value = "";
   document.getElementById("taskCategory").value = "daily";
   document.getElementById("taskAssigned").value = "Carla";
-  document.getElementById("taskDuration").value = 20;
+  document.getElementById("taskDuration").value = 200;
 }
 
 document.getElementById("explainBtn").addEventListener("click", () => {
