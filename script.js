@@ -97,12 +97,43 @@ const rewardIdeas = [
 ];
 
 const weekDays = ["Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado", "Domingo"];
+let currentUser = localStorage.getItem("casaEnCalmaUser");
 const HOME_ID = "carla-jordi-home";
+
 
 let tasks = [];
 let history = [];
 let availability = createDefaultAvailability();
+function setupUserSelection() {
 
+  const selector = document.getElementById("userSelector");
+
+  if (!selector) return;
+
+  if (!currentUser) {
+    selector.style.display = "flex";
+  } else {
+    selector.style.display = "none";
+  }
+
+  const carlaBtn = document.getElementById("selectCarla");
+  const jordiBtn = document.getElementById("selectJordi");
+
+  if (carlaBtn) {
+    carlaBtn.addEventListener("click", () => {
+      localStorage.setItem("casaEnCalmaUser", "Carla");
+      location.reload();
+    });
+  }
+
+  if (jordiBtn) {
+    jordiBtn.addEventListener("click", () => {
+      localStorage.setItem("casaEnCalmaUser", "Jordi");
+      location.reload();
+    });
+  }
+
+}
 function createDefaultAvailability() {
   return weekDays.map(day => ({
     day,
@@ -625,7 +656,13 @@ renderCalendar();
 renderHistory();
 
 window.addEventListener("load", async () => {
+
+  setupUserSelection();
+
+  currentUser = localStorage.getItem("casaEnCalmaUser");
+
   await initializeSharedData();
+
 });
 
 if ("serviceWorker" in navigator) {

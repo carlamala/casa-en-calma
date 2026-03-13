@@ -456,3 +456,30 @@ h1 {
   font-weight: 600;
   margin-bottom: 8px;
 }
+.user-selector {
+  position: fixed;
+  inset: 0;
+  background: #f5efe6;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+}
+
+.user-card {
+  background: white;
+  padding: 30px;
+  border-radius: 20px;
+  text-align: center;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+  width: 260px;
+}
+
+.user-card h2 {
+  margin-bottom: 10px;
+}
+
+.user-card button {
+  width: 100%;
+  margin-top: 10px;
+}
