@@ -297,17 +297,15 @@ function renderTasks(filter = "all") {
   }
 });
 const userTasksTitle = document.getElementById("userTasksTitle");
+const otherTasksTitle = document.getElementById("otherTasksTitle");
 
 if (userTasksTitle) {
   userTasksTitle.textContent = "Tus tareas";
 }
 
-const otherSectionTitle =
-  document.querySelector("#jordiTasks")?.previousElementSibling?.querySelector("h2");
-
-if (otherSectionTitle) {
+if (otherTasksTitle) {
   const otherUser = currentUser === "Carla" ? "Jordi" : "Carla";
-  otherSectionTitle.textContent = `Tareas de ${otherUser}`;
+  otherTasksTitle.textContent = `Tareas de ${otherUser}`;
 }
 
 updateSummary();
