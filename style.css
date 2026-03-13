@@ -483,3 +483,22 @@ h1 {
   width: 100%;
   margin-top: 10px;
 }
+.toast {
+  position: fixed;
+  top: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #7d8d6b;
+  color: white;
+  padding: 14px 18px;
+  border-radius: 14px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+  z-index: 10000;
+  font-size: 14px;
+  max-width: 85%;
+  text-align: center;
+}
+
+.hidden {
+  display: none;
+}

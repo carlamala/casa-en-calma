@@ -134,6 +134,19 @@ function setupUserSelection() {
   }
 
 }
+function showToast(message) {
+  const toast = document.getElementById("toast");
+  if (!toast) return;
+
+  toast.textContent = message;
+  toast.classList.remove("hidden");
+
+  clearTimeout(window.toastTimeout);
+
+  window.toastTimeout = setTimeout(() => {
+    toast.classList.add("hidden");
+  }, 2500);
+}
 function createDefaultAvailability() {
   return weekDays.map(day => ({
     day,
@@ -324,6 +337,7 @@ async function markTaskDone(id) {
   });
 
   await saveAll();
+showToast(`Tarea completada: ${task.title}`);
 }
 
 async function postponeTask(id) {
@@ -338,6 +352,7 @@ async function postponeTask(id) {
   });
 
   await saveAll();
+showToast(`Tarea aplazada: ${task.title}`);
 }
 
 function updateMonthlyProgress() {
@@ -574,6 +589,7 @@ async function organizeWithIA() {
   });
 
   await saveAll();
+showToast("La IA ha reorganizado la semana");
 }
 
 function generateReward() {
@@ -668,7 +684,8 @@ async function saveTaskFromModal() {
   });
 
   await saveAll();
-  closeModal();
+showToast(`Nueva tarea añadida: ${title}`);
+closeModal();
 
   document.getElementById("taskTitle").value = "";
   document.getElementById("taskCategory").value = "daily";
