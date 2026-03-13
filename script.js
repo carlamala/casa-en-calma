@@ -183,7 +183,7 @@ function setupUserSelection() {
       currentLanguage = "es";
       setupUserSelection();
     });
-}
+  }
 }
 
 function createDefaultAvailability() {
