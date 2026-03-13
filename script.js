@@ -125,33 +125,35 @@ function showToast(message) {
 function setupUserSelection() {
   const selector = document.getElementById("userSelector");
   if (!selector) return;
-const userSelectorTitle = document.getElementById("userSelectorTitle");
-const userSelectorText = document.getElementById("userSelectorText");
-const languageLabel = document.getElementById("languageLabel");
 
-if (currentLanguage === "ca") {
-  if (userSelectorTitle) userSelectorTitle.textContent = "Qui fa servir aquest mòbil?";
-  if (userSelectorText) userSelectorText.textContent = "Selecciona el teu perfil";
-  if (languageLabel) languageLabel.textContent = "Idioma";
-  if (carlaBtn) carlaBtn.textContent = "Soc la Carla";
-  if (jordiBtn) jordiBtn.textContent = "Soc en Jordi";
-} else {
-  if (userSelectorTitle) userSelectorTitle.textContent = "¿Quién usa este móvil?";
-  if (userSelectorText) userSelectorText.textContent = "Selecciona tu perfil";
-  if (languageLabel) languageLabel.textContent = "Idioma";
-  if (carlaBtn) carlaBtn.textContent = "Soy Carla";
-  if (jordiBtn) jordiBtn.textContent = "Soy Jordi";
-}
+  const userSelectorTitle = document.getElementById("userSelectorTitle");
+  const userSelectorText = document.getElementById("userSelectorText");
+  const languageLabel = document.getElementById("languageLabel");
+
+  const carlaBtn = document.getElementById("selectCarla");
+  const jordiBtn = document.getElementById("selectJordi");
+  const catalanBtn = document.getElementById("selectCatalan");
+  const spanishBtn = document.getElementById("selectSpanish");
+
+  if (currentLanguage === "ca") {
+    if (userSelectorTitle) userSelectorTitle.textContent = "Qui fa servir aquest mòbil?";
+    if (userSelectorText) userSelectorText.textContent = "Selecciona el teu perfil";
+    if (languageLabel) languageLabel.textContent = "Idioma";
+    if (carlaBtn) carlaBtn.textContent = "Soc la Carla";
+    if (jordiBtn) jordiBtn.textContent = "Soc en Jordi";
+  } else {
+    if (userSelectorTitle) userSelectorTitle.textContent = "¿Quién usa este móvil?";
+    if (userSelectorText) userSelectorText.textContent = "Selecciona tu perfil";
+    if (languageLabel) languageLabel.textContent = "Idioma";
+    if (carlaBtn) carlaBtn.textContent = "Soy Carla";
+    if (jordiBtn) jordiBtn.textContent = "Soy Jordi";
+  }
+
   if (!currentUser) {
     selector.style.display = "flex";
   } else {
     selector.style.display = "none";
   }
-
-  const carlaBtn = document.getElementById("selectCarla");
-  const jordiBtn = document.getElementById("selectJordi");
-const catalanBtn = document.getElementById("selectCatalan");
-const spanishBtn = document.getElementById("selectSpanish");
 
   if (carlaBtn) {
     carlaBtn.addEventListener("click", () => {
@@ -166,18 +168,22 @@ const spanishBtn = document.getElementById("selectSpanish");
       location.reload();
     });
   }
-if (catalanBtn) {
-  catalanBtn.addEventListener("click", () => {
-    localStorage.setItem("casaEnCalmaLang", "ca");
-    location.reload();
-  });
-}
 
-if (spanishBtn) {
-  spanishBtn.addEventListener("click", () => {
-    localStorage.setItem("casaEnCalmaLang", "es");
-    location.reload();
-  });
+  if (catalanBtn) {
+    catalanBtn.addEventListener("click", () => {
+      localStorage.setItem("casaEnCalmaLang", "ca");
+      currentLanguage = "ca";
+      setupUserSelection();
+    });
+  }
+
+  if (spanishBtn) {
+    spanishBtn.addEventListener("click", () => {
+      localStorage.setItem("casaEnCalmaLang", "es");
+      currentLanguage = "es";
+      setupUserSelection();
+    });
+  }
 }
 }
 
