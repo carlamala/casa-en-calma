@@ -263,16 +263,19 @@ function createTaskCard(task) {
       <span class="badge pending">${task.assignedTo === "shared" ? "Compartida" : task.assignedTo}</span>
     </div>
     <div class="task-actions">
-      <button class="done-btn" data-id="${task.id}">Hecha</button>
-      <button class="postpone-btn" data-id="${task.id}">Aplazar</button>
-    </div>
+  <button class="done-btn" data-id="${task.id}">Hecha</button>
+  <button class="postpone-btn" data-id="${task.id}">Aplazar</button>
+  <button class="delete-btn" data-id="${task.id}">Eliminar</button>
+</div>
   `;
 
   const doneBtn = card.querySelector(".done-btn");
   const postponeBtn = card.querySelector(".postpone-btn");
+const deleteBtn = card.querySelector(".delete-btn");
 
   doneBtn.addEventListener("click", () => markTaskDone(task.id));
   postponeBtn.addEventListener("click", () => postponeTask(task.id));
+deleteBtn.addEventListener("click", () => deleteTask(task.id));
 
   return card;
 }
@@ -347,6 +350,22 @@ async function postponeTask(id) {
     text: `"${task.title}" fue aplazada`,
     timestamp: new Date().toLocaleString()
   });
+async function deleteTask(id) {
+  const confirmDelete = confirm("¿Seguro que quieres eliminar esta tarea?");
+  if (!confirmDelete) return;
+
+  const taskToDelete = tasks.find(task => task.id === id);
+
+  tasks = tasks.filter(task => task.id !== id);
+
+  history.unshift({
+    text: `Se eliminó la tarea "${taskToDelete?.title || "sin nombre"}"`,
+    timestamp: new Date().toLocaleString()
+  });
+
+  await saveAll();
+  showToast("Tarea eliminada");
+}
 
   await saveAll();
   showToast(`Tarea aplazada: ${task.title}`);
