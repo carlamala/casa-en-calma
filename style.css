@@ -263,6 +263,10 @@ h1 {
 .postpone-btn {
   background: #efe2cf;
   color: #6b4f39;
+.delete-btn {
+  background: #f4d6d6;
+  color: #7a2e2e;
+}
 }
 
 .tabs {
